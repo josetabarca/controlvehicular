@@ -22,11 +22,11 @@ if (loginForm) {
 
             // Si no se encuentra el usuario
             if (querySnapshot.empty) {
-                mensaje.textContent = "❌ Usuario no encontrado.";
+                mensaje.textContent = "❌ Error en las credenciales";
                 return;
             }
 
-            // Obtencion el correo
+            // Obtener el correo
             let correo = "";
             querySnapshot.forEach((docSnap) => {
                 correo = docSnap.data().correo;
@@ -43,8 +43,9 @@ if (loginForm) {
             const user = query(usuariosRef, where("firebaseUid", "==", firebaseUid));
             const userSnap = await getDocs(user);
 
+            // Si el usuario existe pero no tiene informacion
             if (userSnap.empty) {
-                mensaje.textContent = "⚠️ El usuario no existe";
+                mensaje.textContent = "⚠️ Informacion de usuario no encontrada";
                 return;
             }
 
@@ -57,8 +58,10 @@ if (loginForm) {
 
             // Imprimir los datos del usuario
             alert(
+                "Bienvenid@ " + userData.nombre + "\n" + 
+                "\n" +
                 "Datos del usuario:\n" +
-                "Nombre: " + userData.nombre + " " + userData.apellido + "\n" +
+                "Nombre completo: " + userData.nombre + " " + userData.apellido + "\n" +
                 "Correo: " + userData.correo + "\n" +
                 "Rol: " + userData.rol + "\n" +
                 "Telefono: " + userData.telefono
@@ -69,12 +72,12 @@ if (loginForm) {
                 window.location.href = "./HTML/newCar.html";
             } else if (userData.rol === "Seguridad") {
                 window.location.href = "./HTML/searchCarG.html";
-            }
-            else { mensaje.textContent = "Error, tipo de usuario no valido"; }
+            } // Si algun usuario valido pero sin permiso quiere entrar
+            else { mensaje.textContent = "❌ Error, tipo de usuario no valido"; }
 
         } catch (error) {
             //console.error(error);
-            alert("❌ Error al iniciar sesión: " + error.message);
+            mensaje.textContent = "❌ Error en las credenciales";
         }
     });
 }
