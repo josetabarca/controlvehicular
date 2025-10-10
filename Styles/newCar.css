@@ -1,0 +1,55 @@
+.container {
+    padding: 20px;
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-section {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-default);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.form-block {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex: 1;
+    margin-bottom: 10px;
+}
+
+.form-group input {
+    flex: 1;
+    min-width: 180px;
+    margin-left: 10px;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.form-group select {
+    flex: 1;
+    max-width: 100px;
+    margin-left: 10px;
+    padding: 8px;
+    font-size: 16px;
+}
+
+input[type="file"] {
+    display: flex;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: var(--color-white);
+    font-size: 0.8rem;
+    cursor: pointer;
+}

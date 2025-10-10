@@ -1,0 +1,66 @@
+:root {
+    --color-primary: #fdda46;    /* Color principal, header */
+    --color-background: #ededed; /* Fondo para paginas */
+    --color-button: #323e48;    /* Botones */
+    --color-button-hover: #4a5a67; /* Botones al pasar el mouse */
+    --color-white: #ffffff; 
+    --color-black: #000000; 
+    --shadow-default: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra por defecto */
+    --border-radius: 8px; /* Bordes redondeados */
+}
+
+body {
+    font-family: "Montserrat", sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-black);
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-primary);
+    padding: 10px;
+}
+
+.logo-left,
+.logo-right {
+    height: 50px;
+}
+
+/* Opciones del menu principal */
+nav {
+    background-color: var(--color-primary);
+    padding: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--color-black);
+    font-weight: bold;
+}
+
+/* Botones */
+button {
+    background-color: var(--color-button);
+    color: var(--color-white);
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: var(--color-button-hover);
+}
