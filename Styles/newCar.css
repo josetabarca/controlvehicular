@@ -1,55 +1,44 @@
-.container {
-    padding: 20px;
-    max-width: 980px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.form-section {
-    background-color: var(--color-white);
+/* Estilos tipo card */
+.card {
+    border: none;
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow-default);
-    padding: 20px;
-    margin-bottom: 20px;
 }
 
-.form-block {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+.card-header {
+    background-color: var(--color-button) !important;
+    border-radius: 8px 8px 0 0 !important;
 }
 
-.form-group {
-    display: flex;
-    align-items: center;
-    justify-content: start;
-    flex: 1;
-    margin-bottom: 10px;
+/* Formulario */
+.form-label {
+    font-weight: 500;
+    color: var(--color-button);
 }
 
-.form-group input {
-    flex: 1;
-    min-width: 180px;
-    margin-left: 10px;
-    padding: 8px;
-    font-size: 16px;
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-button);
+    box-shadow: 0 0 0 0.2rem rgba(50, 62, 72, 0.25);
 }
 
-.form-group select {
-    flex: 1;
-    max-width: 100px;
-    margin-left: 10px;
-    padding: 8px;
-    font-size: 16px;
+/* Boton */
+.btn-primary {
+    background-color: var(--color-button) !important;
+    border-color: var(--color-button) !important;
+    transition: all 0.3s ease;
 }
 
-input[type="file"] {
-    display: flex;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: var(--color-white);
-    font-size: 0.8rem;
-    cursor: pointer;
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-button-hover) !important;
+}
+
+/* Animacion */
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
 }
