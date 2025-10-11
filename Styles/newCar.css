@@ -1,0 +1,44 @@
+/* Estilos tipo card */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+}
+
+.card-header {
+    background-color: var(--color-button) !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* Formulario */
+.form-label {
+    font-weight: 500;
+    color: var(--color-button);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-button);
+    box-shadow: 0 0 0 0.2rem rgba(50, 62, 72, 0.25);
+}
+
+/* Boton */
+.btn-primary {
+    background-color: var(--color-button) !important;
+    border-color: var(--color-button) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-button-hover) !important;
+}
+
+/* Animacion */
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
