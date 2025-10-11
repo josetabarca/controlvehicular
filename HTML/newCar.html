@@ -25,7 +25,7 @@
     <main class="container">
       <section>
         <h1>Nuevo Registro de Vehículo</h1>
-        <form>
+        <form id="registre-form">
           <article class="form-section">
             <h3>Información del Alumno</h3>
             <div class="form-block">
@@ -66,8 +66,8 @@
                   type="tel"
                   id="phone"
                   name="phone"
-                  placeholder="123-4567-8912"
-                  pattern="[0-9]{2}-[0-9]{4}-[0-9]{4}"
+                  placeholder="123-467-8912"
+                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
                   required
                 />
               </div>
@@ -130,6 +130,7 @@
         </form>
       </section>
     </main>
+    <script type="module" src="../Scripts/registre.js"></script>
     <script type="module" src="../Scripts/auth.js"></script>
 </body>
 
