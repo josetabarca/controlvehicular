@@ -3,115 +3,137 @@ import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword } from
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Iniciar sesion
-
-const loginForm = document.getElementById("login-form"); // Obtener el formulario de login
+const loginForm = document.getElementById("login-form");
 if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        // Obtener los campos del formulario
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
 
-        const mensaje = document.getElementById("mensaje");
+        // Obtener los campos del formulario        
+        const username = document.getElementById("username");
+        const password = document.getElementById("password");
+
+        // Limpiar estados anteriores
+        limpiarEstados();
 
         try {
+            // Validacion de campos vacios
+            if (!username.value.trim() || !password.value.trim()) {
+                mostrarError("Por favor, complete todos los campos", [username, password]);
+                return;
+            }
+
             // Buscar el correo a partir del nombre de usuario
-            const nombresRef = collection(db, "nombresusuarios"); // Coleccion de nombres de usuario
-            const q = query(nombresRef, where("usuario", "==", username));
+            const nombresRef = collection(db, "nombresusuarios");
+            const q = query(nombresRef, where("usuario", "==", username.value));
             const querySnapshot = await getDocs(q);
 
-            // Si no se encuentra el usuario
             if (querySnapshot.empty) {
-                mensaje.textContent = "❌ Error en las credenciales";
+                mostrarError("Usuario no encontrado", [username]);
                 return;
             }
 
             // Obtener el correo
-            let correo = "";
-            querySnapshot.forEach((docSnap) => {
-                correo = docSnap.data().correo;
-            });
-
+            let correo = querySnapshot.docs[0].data().correo;
 
             // Iniciar sesión con correo real + contraseña
-            const cred = await signInWithEmailAndPassword(auth, correo, password);
-            const firebaseUid = cred.user.uid;
-            mensaje.textContent = "✅ Inicio de sesión exitoso";
+            const cred = await signInWithEmailAndPassword(auth, correo, password.value);
+            const userData = await obtenerDatosUsuario(cred.user.uid);
 
-            // Obtener documento del usuario
-            const usuariosRef = collection(db, "usuarios");
-            const user = query(usuariosRef, where("firebaseUid", "==", firebaseUid));
-            const userSnap = await getDocs(user);
-
-            // Si el usuario existe pero no tiene informacion
-            if (userSnap.empty) {
-                mensaje.textContent = "⚠️ Informacion de usuario no encontrada";
+            if (!userData) {
+                mostrarError("Información de usuario no encontrada");
                 return;
             }
 
-            // Obtener datos completos del usuario
-            let userData = {};
-            userSnap.forEach((docSnap) => {
-                userData = docSnap.data();
-                userData.idDocumento = docSnap.id;
-            });
+            mostrarExito(`Bienvenid@ ${userData.nombre}`);
 
-            // Imprimir los datos del usuario
-            alert(
-                "Bienvenid@ " + userData.nombre + "\n" + 
-                "\n" +
-                "Datos del usuario:\n" +
-                "Nombre completo: " + userData.nombre + " " + userData.apellido + "\n" +
-                "Correo: " + userData.correo + "\n" +
-                "Rol: " + userData.rol + "\n" +
-                "Telefono: " + userData.telefono
-            );
-
-            // Redirigir según el rol 
-            if (userData.rol === "Administrador") {
-                window.location.href = "./HTML/newCar.html";
-            } else if (userData.rol === "Seguridad") {
-                window.location.href = "./HTML/searchCarG.html";
-            } // Si algun usuario valido pero sin permiso quiere entrar
-            else { mensaje.textContent = "❌ Error, tipo de usuario no valido"; }
+            // Redirigir según el rol
+            setTimeout(() => {
+                if (userData.rol === "Administrador") {
+                    window.location.href = "./HTML/newCar.html";
+                } else if (userData.rol === "Seguridad") {
+                    window.location.href = "./HTML/searchCarG.html";
+                } else {
+                    mostrarError("Tipo de usuario no válido");
+                }
+            }, 1000);
 
         } catch (error) {
-            //console.error(error);
-            mensaje.textContent = "❌ Error en las credenciales";
+            manejarErrorAuth(error, username, password);
         }
     });
 }
 
-
-
-
-// Cerrar sesion
-function cerrarSesion() {
-    signOut(auth)
-        .then(() => {
-            alert("Sesión cerrada correctamente ✅");
-            window.location.href = "../index.html";
-        })
-        .catch((error) => {
-            alert("Error al cerrar sesión ❌");
-        });
+// Funciones de utilidad
+// Manejo de estados de validación
+function limpiarEstados() {
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.classList.remove('is-invalid');
+    });
+    document.getElementById('mensaje').className = 'alert mt-3 d-none';
 }
 
-const opcLogut = document.getElementById("logoutBtn"); // Obtener botón del menú con la función cerrar sision
+// Obtener datos del usuario desde Firestore
+async function obtenerDatosUsuario(firebaseUid) {
+    const usuariosRef = collection(db, "usuarios");
+    const user = query(usuariosRef, where("firebaseUid", "==", firebaseUid));
+    const userSnap = await getDocs(user);
 
-if (opcLogut) { // Este boton solo existe en las paginas posteriores al login/index
+    if (!userSnap.empty) {
+        const userData = userSnap.docs[0].data();
+        userData.idDocumento = userSnap.docs[0].id;
+        return userData;
+    }
+    return null;
+}
+
+// Manejo de errores de autenticación
+function manejarErrorAuth(error, username, password) {
+    const errores = {
+        'auth/wrong-password': ["La contraseña es incorrecta", [password]],
+        'auth/too-many-requests': ["Demasiados intentos fallidos. Por favor, intente más tarde", [username, password]],
+        'auth/network-request-failed': ["Error de conexión. Verifique su internet", []],
+    };
+
+    const [mensaje, campos] = errores[error.code] || ["Error en las credenciales", [username, password]];
+    mostrarError(mensaje, campos);
+}
+
+// Mostrar mensajes
+function mostrarError(mensaje, campos = []) {
+    const mensajeElement = document.getElementById("mensaje");
+    mensajeElement.className = 'alert alert-danger mt-3 show';
+    mensajeElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${mensaje}`;
+    campos.forEach(campo => campo.classList.add('is-invalid'));
+}
+
+function mostrarExito(mensaje) {
+    const mensajeElement = document.getElementById("mensaje");
+    mensajeElement.className = 'alert alert-success mt-3 show';
+    mensajeElement.innerHTML = `<i class="fas fa-check-circle"></i> ${mensaje}`;
+}
+
+// Limpiar validación al escribir
+document.querySelectorAll('.form-control').forEach(input => {
+    input.addEventListener('input', () => {
+        input.classList.remove('is-invalid');
+        document.getElementById('mensaje').classList.add('d-none');
+    });
+});
+
+// Cerrar sesión
+const opcLogut = document.getElementById("logoutBtn");
+if (opcLogut) {
     opcLogut.addEventListener("click", (e) => {
         e.preventDefault();
-        cerrarSesion();
+        signOut(auth)
+            .then(() => {
+                window.location.href = "../index.html";
+            })
+            .catch(() => mostrarError("Error al cerrar sesión"));
     });
 }
 
-
-
-
-// Bloqueo de acceso a personas no autorizadas y según el rol
-
-// Detectar el nombre del archivo actual
+// Control de acceso
 const paginaActual = window.location.pathname.split("/").pop();
 
 // Páginas específicas según el rol
@@ -128,35 +150,35 @@ if (paginaActual !== "index.html" && paginaActual !== "") {
         }
 
         try {
-            // Buscar el documento del usuario usando el campo firebaseUid
-            const usuariosRef = collection(db, "usuarios");
-            const q = query(usuariosRef, where("firebaseUid", "==", user.uid));
-            const querySnapshot = await getDocs(q);
-
-            if (querySnapshot.empty) {
-                alert("No se encontró información del usuario. Contacta al administrador.");
-                window.location.href = "../index.html";
-                return;
+            const userData = await obtenerDatosUsuario(user.uid);
+            if (!userData) {
+                throw new Error("Usuario no encontrado");
             }
 
-            // Extraer los datos del usuario
-            let rol = "";
-            querySnapshot.forEach((doc) => {
-                rol = doc.data().rol;
-            });
-
-            // Verificación de permisos por rol
-            if (rol === "Seguridad" && paginasAdmin.includes(paginaActual)) {
+            if (userData.rol === "Seguridad" && paginasAdmin.includes(paginaActual)) {
                 window.location.href = "./searchCarG.html";
             }
-
-            if (rol === "Administrador" && paginasSeguridad.includes(paginaActual)) {
+            if (userData.rol === "Administrador" && paginasSeguridad.includes(paginaActual)) {
                 window.location.href = "./searchCar.html";
             }
-
         } catch (error) {
-            alert("Hubo un problema al verificar permisos.");
             window.location.href = "../index.html";
         }
     });
 }
+
+// Toggle de visibilidad de contraseña
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const password = document.getElementById('password');
+    const icon = this.querySelector('i');
+
+    if (password.type === 'password') {
+        password.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        password.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
