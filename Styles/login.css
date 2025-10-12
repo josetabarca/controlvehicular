@@ -1,15 +1,84 @@
-.login-container {
-    max-width: 400px;
-    margin: 50px auto;
-    background-color: var(--color-white);
-    padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-default);
+/* Imagen de fondo*/
+body {
+    min-height: 100vh;
+    background-image: url('../Media/3.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
-.login-container input {
-    width: 90%;
-    padding: 8px;
-    margin-bottom: 20px;
-    font-size: 16px;
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+/* Estilos tipo card */
+.login-card {
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    background-color: var(--color-primary) !important;
+    border-radius: 10px 10px 0 0 !important;
+    border-bottom: 0;
+    color: var(--color-button);
+}
+
+/* Imputs */
+.form-control {
+    border-radius: 5px;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: var(--color-button);
+    box-shadow: 0 0 0 0.2rem rgba(50, 62, 72, 0.25);
+}
+
+/* Boton mostrar password */
+.btn-outline-secondary {
+    background-color: var(--color-white) !important;
+    border-color: #dacece;
+    color: var(--color-button) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Mensajes de alerta */
+.alert {
+    border-radius: 8px;
+    margin-bottom: 0;
+    padding: 1rem;
+    border-left: 4px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.alert.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: #28a745;
+    color: #28a745;
 }
