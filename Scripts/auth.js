@@ -111,15 +111,15 @@ function mostrarExito(mensaje) {
     mensajeElement.className = 'alert alert-success mt-3 show';
     mensajeElement.innerHTML = `<i class="fas fa-check-circle"></i> ${mensaje}`;
 }
-
-// Limpiar validación al escribir
-document.querySelectorAll('.form-control').forEach(input => {
-    input.addEventListener('input', () => {
-        input.classList.remove('is-invalid');
-        document.getElementById('mensaje').classList.add('d-none');
+if (loginForm) {
+    // Limpiar validación al escribir
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', () => {
+            input.classList.remove('is-invalid');
+            document.getElementById('mensaje').classList.add('d-none');
+        });
     });
-});
-
+}
 // Cerrar sesión
 const opcLogut = document.getElementById("logoutBtn");
 if (opcLogut) {
@@ -168,17 +168,20 @@ if (paginaActual !== "index.html" && paginaActual !== "") {
 }
 
 // Toggle de visibilidad de contraseña
-document.getElementById('togglePassword').addEventListener('click', function () {
-    const password = document.getElementById('password');
-    const icon = this.querySelector('i');
+if (loginForm) {
 
-    if (password.type === 'password') {
-        password.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        password.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-});
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const password = document.getElementById('password');
+        const icon = this.querySelector('i');
+
+        if (password.type === 'password') {
+            password.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            password.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+}
