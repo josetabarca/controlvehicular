@@ -12,7 +12,7 @@ import {
   CLOUDINARY_UPLOAD_PRESET,
   CLOUDINARY_URL,
 } from "./cloudinaryConfig.js";
-import { db } from "./firebase.example.js";
+import { db } from "./firebase.js";
 
 const form = document.getElementById("registre-form");
 
