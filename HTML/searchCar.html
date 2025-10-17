@@ -47,7 +47,7 @@
                     <input type="text" id="searchInput" placeholder="Buscar vehículo..." class="form-control d-inline-block" style="width: 300px;">
                     <button id="searchBtn" class="btn btn-primary ms-2">Buscar</button>
                 </div>
-                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">Nuevo Registro</button>
+                 <button class="btn btn-success" onclick="abrirModal('crear')">Nuevo Registro</button>
                 </div>
 
                 <div class="table-responsive">
@@ -116,21 +116,20 @@
     </div>
 
     <!-- Modal Agregar -->
-    <div aria-hidden="true" class="modal fade" id="addModal" tabindex="-1">
+    <div aria-hidden="true" class="modal fade" id="vehiculoModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title">Agregar Registro</h5>
+                <h5 class="modal-title" id="modalTitle">Agregar Registro</h5>
                 <button aria-label="Cerrar" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                 </div>
                 <div class="modal-body">
 
                 <!-- Contenido del formulario de agregar -->
                 <div class="container-lg py-4">
-                    <div class="card shadow-sm">
-                    <div class="card-body p-4">
+                   
                         <h2 class="card-title text-center mb-4">
-                        <i class="fas fa-car"></i> Nuevo Registro de Vehículo
+                        <i class="fas fa-car"></i> <span id="formHeaderText"> Nuevo Registro de Vehículo</span>
                         </h2>
 
                         <form id="registre-form" class="needs-validation">
@@ -170,12 +169,12 @@
                                 </div>
                                 <div class="col-md-6">
                                 <label class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="123-4567-8912"
+                                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="123-4567-8912"
                                     pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required>
                                 </div>
                                 <div class="col-md-6">
                                 <label class="form-label">Correo electrónico</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="email@ejemplo.com"
+                                <input type="email" class="form-control" id="correo" name="correo" placeholder="email@ejemplo.com"
                                     required>
                                 </div>
                             </div>
@@ -212,25 +211,29 @@
                                 <label class="form-label">
                                     <i class="fas fa-id-card"></i> Licencia
                                 </label>
-                                <input type="file" class="form-control" id="licencia" name="licencia" title="licencia" required>
+                                <input type="file" class="form-control" id="licencia" name="licencia" title="licencia" accept="image/*" required>
+                                 <div id="licencia-preview" class="mt-1"></div>
                                 </div>
                                 <div class="col-md-6">
                                 <label class="form-label">
                                     <i class="fas fa-file-alt"></i> Tarjeta de circulación
                                 </label>
-                                <input type="file" class="form-control" id="tarjeta" name="tarjeta" title="tarjeta" required>
+                                <input type="file" class="form-control" id="tarjeta" name="tarjeta" title="tarjeta" accept="image/*" required>
+                                <div id="tarjeta-preview" class="mt-1"></div>
                                 </div>
                                 <div class="col-md-6">
                                 <label class="form-label">
                                     <i class="fas fa-shield-alt"></i> Seguro vehicular
                                 </label>
-                                <input type="file" class="form-control" id="seguro" name="seguro" title="seguro" required>
+                                <input type="file" class="form-control" id="seguro" name="seguro" title="seguro" accept="image/*" required>
+                                <div id="seguro-preview" class="mt-1"></div>
                                 </div>
                                 <div class="col-md-6">
                                 <label class="form-label">
                                     <i class="fas fa-file-signature"></i> Responsiva
                                 </label>
-                                <input type="file" class="form-control" id="responsiva" name="responsiva" title="responsiva" required>
+                                <input type="file" class="form-control" id="responsiva" name="responsiva" title="responsiva" accept="image/*" required>
+                                <div id="responsiva-preview" class="mt-1"></div>
                                 </div>
                             </div>
                             </div>
@@ -238,12 +241,10 @@
 
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg px-5">
-                            <i class="fas fa-save"></i> Registrar
+                            <i class="fas fa-save"></i> <span id="formButton">Registrar</span>
                             </button>
                         </div>
                         </form>
-                    </div>
-                    </div>
                 </div>
 
                 </div>
@@ -251,20 +252,6 @@
         </div>
     </div>
 
-    <!-- Modal Editar -->
-    <div aria-hidden="true" class="modal fade" id="editModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title">Editar Registro</h5>
-                <button aria-label="Cerrar" class="btn-close" data-bs-dismiss="modal" type="button"></button>
-                </div>
-                <div class="modal-body">
-                <!-- Contenido del formulario de edición -->
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal Eliminar -->
     <div aria-hidden="true" class="modal fade" id="deleteModal" tabindex="-1">

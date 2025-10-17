@@ -1,5 +1,5 @@
 import { db } from "../Scripts/firebase.js";
-import { collection, query, orderBy, limit, getDocs, startAfter, endBefore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { collection, query, orderBy, limit, getDocs, startAfter, endBefore, doc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Variables globales para paginación
 let lastDoc = null;
@@ -66,8 +66,15 @@ async function getStudentInfo(uid) {
 }
 
 // Cargar registros con paginación
-async function loadRecords(direction = 'next') {
+async function loadRecords(direction = 'next', reset = false) {
     try {
+
+         // Reiniciar paginación si se indica
+        if (reset) {
+            lastDoc = null;
+            firstDoc = null;
+            currentDocs = [];
+        }
         // Referencia a la colección de vehículos
         const vehiculosRef = collection(db, "vehiculos");
         let q; // Consulta
@@ -111,9 +118,11 @@ async function loadRecords(direction = 'next') {
         await Promise.all(querySnapshot.docs.map(async (doc) => {
             const data = doc.data(); // Datos del vehículo
             const rowId = doc.id; // ID del documento
+            console.log(data);
             // Obtener información del estudiante asociado
             const studentInfo = await getStudentInfo(data.uid);
             //  Crear fila de vehículo y fila oculta de información del estudiante
+            const editarBtnId = `editar-${rowId}`;
             const row = `
     <tr data-row-id="${rowId}">
         <td>${data.placa || 'N/A'}</td>
@@ -136,8 +145,8 @@ async function loadRecords(direction = 'next') {
             </button>
         </td> 
         <td>
-            <button class='btn btn-warning btn-sm me-1' data-bs-toggle='modal' data-bs-target='#editModal'>Editar</button>
-            <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}")'>Eliminar</button>
+            <button class='btn btn-warning btn-sm me-1' id="${editarBtnId}">Editar</button>
+            <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}", "${data.uid}")'>Eliminar</button>
         </td>
     </tr>
                         <tr class="info-row" id="info-${rowId}">
@@ -165,7 +174,12 @@ async function loadRecords(direction = 'next') {
                             </td>
                         </tr>
                     `;
-            tbody.innerHTML += row;
+            tbody.insertAdjacentHTML('beforeend', row);
+
+            document.getElementById(editarBtnId).addEventListener('click', () => {abrirModal('editar', { vehiculo: data, estudiante: studentInfo });
+});
+
+            
         }));
 
         // Inicializar tooltips de Bootstrap
@@ -251,18 +265,32 @@ function toggleStudentInfo(rowId) {
 // Hacer la función accesible globalmente
 window.toggleStudentInfo = toggleStudentInfo;
 
+
 // Función para confirmar y eliminar un registro
-window.confirmDelete = function(rowId) {
+window.confirmDelete = function(rowId, userId) {
   const confirmBtn = document.getElementById('confirmDelete');
   confirmBtn.onclick = async function () {
+    const batch = writeBatch(db);
     try {
-      await deleteDoc(doc(db, 'vehiculos', rowId));
+      batch.delete(doc(db, 'vehiculos', rowId));
+      batch.delete(doc(db, 'usuarios', userId));
+      batch.delete(doc(db, 'nombresusuarios', userId));
+
+      // Confirmar la eliminación en Firestore
+      await batch.commit();
+      
       const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
       modal.hide();
-      loadRecords();
+      loadRecords('next', true);
+      alert('Registro y datos relacionados eliminados correctamente.'); 
     } catch (error) {
       console.error('Error al eliminar el registro:', error);
     }
   };
   new bootstrap.Modal(document.getElementById('deleteModal')).show();
 };
+
+// Exportar la función loadRecords
+export { loadRecords };
+
+
