@@ -49,7 +49,7 @@ if (loginForm) {
             // Redirigir según el rol
             setTimeout(() => {
                 if (userData.rol === "Administrador") {
-                    window.location.href = "./HTML/newCar.html";
+                    window.location.href = "./HTML/searchCar.html";
                 } else if (userData.rol === "Seguridad") {
                     window.location.href = "./HTML/searchCarG.html";
                 } else {

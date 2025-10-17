@@ -134,6 +134,10 @@ async function loadRecords(direction = 'next') {
                     title="Estudiante">
                 <i class="fas fa-user-graduate"></i>
             </button>
+        </td> 
+        <td>
+            <button class='btn btn-warning btn-sm me-1' data-bs-toggle='modal' data-bs-target='#editModal'>Editar</button>
+            <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}")'>Eliminar</button>
         </td>
     </tr>
                         <tr class="info-row" id="info-${rowId}">
@@ -246,3 +250,19 @@ function toggleStudentInfo(rowId) {
 
 // Hacer la función accesible globalmente
 window.toggleStudentInfo = toggleStudentInfo;
+
+// Función para confirmar y eliminar un registro
+window.confirmDelete = function(rowId) {
+  const confirmBtn = document.getElementById('confirmDelete');
+  confirmBtn.onclick = async function () {
+    try {
+      await deleteDoc(doc(db, 'vehiculos', rowId));
+      const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+      modal.hide();
+      loadRecords();
+    } catch (error) {
+      console.error('Error al eliminar el registro:', error);
+    }
+  };
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+};
