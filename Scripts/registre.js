@@ -13,8 +13,81 @@ import {
   CLOUDINARY_URL,
 } from "./cloudinaryConfig.js";
 import { db } from "./firebase.js";
+import { loadRecords } from "./search.js";
 
 const form = document.getElementById("registre-form");
+const modalEl = document.getElementById("vehiculoModal");
+const modal = new bootstrap.Modal(modalEl);
+
+//Crear modolo de formulario
+let modo = "crear";
+let placaEditar = null;
+let uid, vehiculoID;
+
+//Modal modo segun el modo
+function abrirModal(tipo, data = null) {
+  modo = tipo;
+  const modalTitle = document.getElementById("modalTitle");
+  const formHeaderText = document.getElementById("formHeaderText");
+  const formButton = document.getElementById("formButton");
+
+  const fileInputs = ["licencia", "tarjeta", "seguro", "responsiva"].map((id) =>
+    document.getElementById(id)
+  );
+  if (modo === "crear") {
+    modalTitle.innerText = "Nuevo Registro de Vehículo";
+    formHeaderText.innerText = "Nuevo Registro de Vehículo";
+    formButton.innerText = "Registrar";
+    form.reset();
+
+    document.getElementById("placa").disabled = false;
+    document.getElementById("correo").disabled = false;
+    fileInputs.forEach((input) => {
+      input.required = true;
+      const preview = document.getElementById(`${input.id}-preview`);
+      if (preview) preview.innerHTML = "";
+    });
+  } else if (modo === "editar") {
+    modalTitle.innerText = "Editar Registro de Vehículo";
+    formButton.innerText = "Guardar Cambios";
+    formHeaderText.innerText = "Editar Registro de Vehículo";
+
+    //Registro seleccionado
+    placaEditar = data;
+
+    const { vehiculo, estudiante } = data;
+
+    // Rellenar campos del vehículo
+    for (const [key, value] of Object.entries(vehiculo)) {
+      const input = document.getElementById(key);
+      if (input && input.type !== "file") input.value = value;
+    }
+
+    if (vehiculo.documentos) {
+      for (const key in vehiculo.documentos) {
+        const preview = document.getElementById(`${key}-preview`);
+        if (preview) {
+          preview.innerHTML = `<small class="text-muted">Archivo actual:</small>
+                               <a href="${vehiculo.documentos[key]}" target="_blank" class="text-primary">Ver archivo</a>`;
+        }
+      }
+    }
+
+    // Rellenar campos del estudiante
+    if (estudiante) {
+      for (const [key, value] of Object.entries(estudiante)) {
+        const input = document.getElementById(key);
+        if (input) input.value = value;
+      }
+    }
+
+    document.getElementById("placa").disabled = true;
+    document.getElementById("correo").disabled = true;
+    fileInputs.forEach((input) => (input.required = false));
+  }
+
+  modal.show();
+}
 
 // Expresiones regulares para validar los campos del formulario
 const patterns = {
@@ -35,11 +108,15 @@ function validarCampos(name, value) {
 }
 
 // Función para subir archivos a Cloudinary
-async function subirArchivo(file, carpetaUsuario) {
+async function subirArchivo(file, carpetaUsuario, tipoArchivo) {
+  const timestamp = Math.round(Date.now() / 1000);
+
   const dataForm = new FormData();
-  dataForm.append("file", file);
+  dataForm.append("file", file);  
   dataForm.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
   dataForm.append("folder", `usuarios/${carpetaUsuario}`);
+   dataForm.append("public_id", `${tipoArchivo}_${timestamp}`);
+
 
   const response = await fetch(CLOUDINARY_URL, {
     method: "POST",
@@ -97,71 +174,140 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
-    const usuariosQuery = await getDocs(
-      query(collection(db, "usuarios"), where("correo", "==", data.email))
-    );
-    if (!usuariosQuery.empty)
-      throw new Error("Ya existe un usuario con este correo.");
+    let uid;
+    let batch = writeBatch(db);
 
-    //uid único para el usuario
-    const uid = data.email.split("@")[0] + Date.now();
+    if (modo === "crear") {
+      //---CREAR----
 
-    //batch de escritura para crear los documentos en Firestore
-    const batch = writeBatch(db);
+      //Verificar que no exista un usuario con el mismo correo
+      const usuariosQuery = await getDocs(
+        query(collection(db, "usuarios"), where("correo", "==", data.correo))
+      );
+      if (!usuariosQuery.empty)
+        throw new Error("Ya existe un usuario con este correo.");
 
-    // Colección usuarios
-    const usuarioRef = doc(db, "usuarios", uid);
-    batch.set(usuarioRef, {
-      nombre: data.nombre,
-      apellido: data.apellido,
-      grado: data.grado,
-      grupo: data.grupo,
-      telefono: data.phone,
-      correo: data.email,
-      rol: "Alumno",
-      activo: true,
-      fotoPerfil: "",
-    });
+      //uid único para el usuario
+      uid = data.correo.split("@")[0] + Date.now();
 
-    // Colección nombresusuarios
-    const nombreUsuarioRef = doc(db, "nombresusuarios", uid);
-    batch.set(nombreUsuarioRef, {
-      usuario: `${data.nombre}.${data.apellido}`,
-      correo: data.email,
-    });
+      //Crear documentos en batch
+      const usuarioRef = doc(db, "usuarios", uid);
+      batch.set(usuarioRef, {
+        nombre: data.nombre,
+        apellido: data.apellido,
+        grado: data.grado,
+        grupo: data.grupo,
+        telefono: data.telefono,
+        correo: data.correo,
+        rol: "Alumno",
+        activo: true,
+        fotoPerfil: "",
+      });
 
-    // Colección vehículos
-    const vehiculoRef = doc(db, "vehiculos", data.placa.toUpperCase());
-    batch.set(vehiculoRef, {
-      placa: data.placa.toUpperCase(),
-      marca: data.marca,
-      modelo: data.modelo,
-      color: data.color,
-      documentos: {},
-      estadoValidacion: "Pendiente",
-      fechaRegistro: serverTimestamp(),
-      uid,
-    });
+      const nombreUsuarioRef = doc(db, "nombresusuarios", uid);
+      batch.set(nombreUsuarioRef, {
+        usuario: `${data.nombre}.${data.apellido}`,
+        correo: data.correo,
+      });
 
-    // Commit del batch
-    await batch.commit();
+      const vehiculoRef = doc(db, "vehiculos", data.placa.toUpperCase());
+      batch.set(vehiculoRef, {
+        placa: data.placa.toUpperCase(),
+        marca: data.marca,
+        modelo: data.modelo,
+        color: data.color,
+        documentos: {},
+        estadoValidacion: "Pendiente",
+        fechaRegistro: serverTimestamp(),
+        uid,
+      });
 
-    //Subir los archivos a Cloudinary
-    const urls = {};
-    for (const key in archivos) {
-      const resultado = await subirArchivo(archivos[key], uid);
-      urls[key] = resultado.url;
+      // Commit del batch
+      await batch.commit();
+
+      //Subir los archivos a Cloudinary
+      const urls = {};
+      for (const [tipo, file] of Object.entries(archivos)) {
+        if (file && file.size > 0) {
+          const resultado = await subirArchivo(file, uid, tipo);
+          urls[tipo] = resultado.url;
+        }
+      }
+
+      //Actualizar el documento
+      await setDoc(
+        doc(db, "vehiculos", data.placa.toUpperCase()),
+        { documentos: urls },
+        { merge: true }
+      );
+
+      alert("Alumno y vehículo registrados correctamente.");
+      form.reset();
+      modal.hide();
+      loadRecords('next', true);
+    } else if (modo === "editar" && placaEditar) {
+      //---EDITAR----
+
+      uid = placaEditar.vehiculo.uid;
+      vehiculoID = placaEditar.vehiculo.placa;
+      const vehiculoRef = doc(db, "vehiculos", vehiculoID);
+      const usuarioRef = doc(db, "usuarios", uid);
+      const nombreUsuarioRef = doc(db, "nombresusuarios", uid);
+
+      //Actualizar el documento del vehículo
+      batch.set(
+        vehiculoRef,
+        {
+          marca: data.marca,
+          modelo: data.modelo,
+          color: data.color,
+        },
+        { merge: true }
+      );
+
+      // Actualizar "usuarios"
+      batch.set(
+        usuarioRef,
+        {
+          nombre: data.nombre,
+          apellido: data.apellido,
+          grado: data.grado,
+          grupo: data.grupo,
+          telefono: data.telefono,
+        },
+        { merge: true }
+      );
+
+      batch.set(
+        nombreUsuarioRef,
+        {
+          usuario: `${data.nombre}.${data.apellido}`,
+        },
+        { merge: true }
+      );
+
+      await batch.commit();
+
+      const archivosNuevos = {};
+      for (const [tipo, file] of Object.entries(archivos)) {
+        if (file && file.size > 0) {
+          const resultado = await subirArchivo(file, uid, tipo);
+          archivosNuevos[tipo] = resultado.url;
+        }
+      }
+
+      if (Object.keys(archivosNuevos).length > 0) {
+        await setDoc(
+          doc(db, "vehiculos", vehiculoID),
+          { documentos: archivosNuevos },
+          { merge: true }
+        );
+      }
+
+      alert("Registro actualizado correctamente");
+      modal.hide();
+      loadRecords('next', true);
     }
-
-    //Actualizar el documento
-    await setDoc(
-      doc(db, "vehiculos", data.placa.toUpperCase()),
-      { documentos: urls },
-      { merge: true }
-    );
-
-    alert("Alumno y vehículo registrados correctamente.");
-    form.reset();
   } catch (error) {
     console.error("Error al crear alumno:", error);
 
@@ -176,3 +322,5 @@ form.addEventListener("submit", async (e) => {
     form.reset();
   }
 });
+
+window.abrirModal = abrirModal;
