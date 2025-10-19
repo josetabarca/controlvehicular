@@ -136,3 +136,7 @@
     background-color: var(--color-button) !important;
     border-radius: 8px 8px 0 0 !important;
 }
+
+#loadingDiv {
+    color: var(--color-button);
+}

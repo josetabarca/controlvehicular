@@ -47,7 +47,7 @@ if (loginForm) {
             mostrarExito(`Bienvenid@ ${userData.nombre}`);
 
             // Redirigir según el rol
-            setTimeout(() => {
+            /*setTimeout(() => {
                 if (userData.rol === "Administrador") {
                     window.location.href = "./HTML/searchCar.html";
                 } else if (userData.rol === "Seguridad") {
@@ -55,7 +55,8 @@ if (loginForm) {
                 } else {
                     mostrarError("Tipo de usuario no válido");
                 }
-            }, 1000);
+            }, 1000);*/
+            window.location.href = "./HTML/searchCar.html";
 
         } catch (error) {
             manejarErrorAuth(error, username, password);
@@ -149,6 +150,7 @@ if (paginaActual !== "index.html" && paginaActual !== "") {
             return;
         }
 
+        /*
         try {
             const userData = await obtenerDatosUsuario(user.uid);
             if (!userData) {
@@ -161,9 +163,11 @@ if (paginaActual !== "index.html" && paginaActual !== "") {
             if (userData.rol === "Administrador" && paginasSeguridad.includes(paginaActual)) {
                 window.location.href = "./searchCar.html";
             }
+
         } catch (error) {
             window.location.href = "../index.html";
         }
+            */
     });
 }
 
