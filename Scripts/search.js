@@ -1,5 +1,5 @@
 import { db } from "../Scripts/firebase.js";
-import { collection, query, orderBy, limit, getDocs, startAfter, endBefore, doc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { collection, query, orderBy, limit, getDocs, startAfter, endBefore, doc, getDoc, writeBatch, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Variables globales para paginación
 let lastDoc = null;
@@ -215,7 +215,115 @@ async function loadRecords(direction = 'next', reset = false) {
     }
 }
 
-// Event Listeners de botones y select
+// Función para buscar vehículos por placas
+async function searchVehicles(placas) {
+    try {
+        // Referencia a la colección de vehículos
+        const vehiculosRef = collection(db, "vehiculos");
+        const placasArray = placas.split(',').map(p => p.trim().toUpperCase());
+
+        if (placasArray.length === 0 || (placasArray.length === 1 && placasArray[0] === '')) {
+            loadRecords('next', true);
+            return;
+        }
+        // Consulta para buscar vehículos con las placas especificadas
+        const q = query(vehiculosRef, where("placa", "in", placasArray));
+        const querySnapshot = await getDocs(q);
+        // Manejar caso sin resultados
+        if (querySnapshot.empty) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center">
+                        <i class="fas fa-search"></i> No se encontraron vehículos con las placas especificadas
+                    </td>
+                </tr>`;
+            return;
+        }
+        // Renderizar resultados de búsqueda
+        tbody.innerHTML = '';
+        await Promise.all(querySnapshot.docs.map(async (doc) => {
+            const data = doc.data();
+            const rowId = doc.id;
+            const studentInfo = await getStudentInfo(data.uid);
+            const editarBtnId = `editar-${rowId}`;
+            
+            // Usar el mismo template de fila que en loadRecords
+            const row = `
+                <tr data-row-id="${rowId}">
+                    <td>${data.placa || 'N/A'}</td>
+                    <td>${data.marca || 'N/A'}</td>
+                    <td>${data.modelo || 'N/A'}</td>
+                    <td>${data.color || 'N/A'}</td>
+                    <td>${formatDate(data.fechaRegistro)}</td>
+                    <td>
+                        ${createDocumentLink(data.documentos?.licencia, 'fa-id-card', 'Licencia')}
+                        ${createDocumentLink(data.documentos?.tarjeta, 'fa-file-alt', 'Tarjeta de Circulación')}
+                        ${createDocumentLink(data.documentos?.seguro, 'fa-shield-alt', 'Seguro')}
+                        ${createDocumentLink(data.documentos?.responsiva, 'fa-file-signature', 'Responsiva')}
+                    </td>
+                    <td>
+                        <button class="btn btn-info btn-sm" 
+                                onclick="toggleStudentInfo('${rowId}')"
+                                data-bs-toggle="tooltip"
+                                title="Ver información del estudiante">
+                            <i class="fas fa-user-graduate"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button class='btn btn-warning btn-sm me-1' id="${editarBtnId}">Editar</button>
+                        <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}", "${data.uid}")'>Eliminar</button>
+                    </td>
+                </tr>
+                <tr class="info-row" id="info-${rowId}">
+                    <td colspan="8">
+                        <div class="student-info">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <p><strong><i class="fas fa-user"></i> Nombre:</strong><br>
+                                    ${studentInfo ? `${studentInfo.nombre} ${studentInfo.apellido}` : 'N/A'}</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p><strong><i class="fas fa-graduation-cap"></i> Grado y Grupo:</strong><br>
+                                    ${studentInfo ? `${studentInfo.grado} "${studentInfo.grupo}"` : 'N/A'}</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p><strong><i class="fas fa-phone"></i> Teléfono:</strong><br>
+                                    ${studentInfo ? studentInfo.telefono : 'N/A'}</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p><strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                                    ${studentInfo ? studentInfo.correo : 'N/A'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            
+            tbody.insertAdjacentHTML('beforeend', row);
+
+            // Añadir event listener para el botón de editar
+            document.getElementById(editarBtnId).addEventListener('click', () => {
+                abrirModal('editar', { vehiculo: data, estudiante: studentInfo });
+            });
+        }));
+
+        // Reinicializar tooltips
+        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+
+    } catch (error) { // Manejar errores
+        console.error("Error al buscar vehículos:", error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-danger">
+                    <i class="fas fa-exclamation-circle"></i> 
+                    Error al buscar vehículos: ${error.message}
+                </td>
+            </tr>`;
+    }
+}
+
+// Event Listeners de botones, select e imput
 
 // Navegación de página
 nextBtn.addEventListener('click', () => loadRecords('next'));
@@ -292,5 +400,32 @@ window.confirmDelete = function(rowId, userId) {
 
 // Exportar la función loadRecords
 export { loadRecords };
+
+// Event listeners para búsqueda
+// Búsqueda por botón
+document.getElementById('searchBtn').addEventListener('click', () => {
+    const searchInput = document.getElementById('searchInput');
+    const placas = searchInput.value.trim();
+    if (!placas) {
+        loadRecords('next', true);
+        return;
+    }
+    searchVehicles(placas);
+});
+
+// Búsqueda al presionar Enter en el input
+document.getElementById('searchInput').addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') { // Si se presionó Enter
+        const placas = e.target.value.trim(); // Obtener valor del input
+        if (!placas) { // Si está vacío, mostrar todos los registros
+            loadRecords('next', true);
+            return;
+        }
+        // Buscar vehículos por placas 
+        searchVehicles(placas);
+    } else if (e.target.value.trim() === '') {
+        loadRecords('next', true); // Si está vacío, mostrar todos los registros
+    }
+});
 
 
