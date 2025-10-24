@@ -20,7 +20,8 @@
         <nav class="navbar navbar-expand-lg flex-grow-1">
             <div class="container-fluid justify-content-end">
                 <a class="nav-link text-dark" href="#" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="d-none d-md-inline"> Cerrar sesión</span>
                 </a>
             </div>
         </nav>
@@ -31,24 +32,30 @@
             <div class="table-container">
                 <h2 class="mb-4 text-center">Registros de Vehículos</h2>
                 <!-- Busqueda y nuevo registro -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
-                <div>
-                    <input type="text" id="searchInput" placeholder="Buscar vehículo..." class="form-control d-inline-block" style="width: 300px;">
-                    <button id="searchBtn" class="btn btn-primary ms-2" title="Buscar por placa">Buscar</button>
+                <div class="d-flex justify-content-between align-items-center w-100 mb-3">
+                <div class="d-flex justify-content-between">
+                    <input type="text" id="searchInput" placeholder="Buscar vehículo..." class="form-control d-inline-block" style="min-width: 120px;">
+                    <button id="searchBtn" class="btn btn-primary ms-2 d-flex align-items-center" title="Buscar por placa">
+                        <i class="fas fa-search me-md-2 d-md-none d-inline"></i>
+                        <span class="d-none d-md-inline"> Buscar</span>
+                    </button>
                 </div>
-                 <button class="btn btn-success" title="Agregar un nuevo registro" onclick="abrirModal('crear')">Nuevo Registro</button>
+                 <button class="btn btn-success" title="Agregar un nuevo registro" onclick="abrirModal('crear')">
+                    <i class="fas fa-plus-circle d-md-none d-inline"></i>
+                    <span class="d-none d-md-inline"> Nuevo Registro</span>
+                </button>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>Placa</th>
                                 <th>Marca</th>
                                 <th>Modelo</th>
                                 <th>Color</th>
-                                <th>Fecha</th>
-                                <th>Documentos</th>
+                                <th class="col-rs">Fecha</th>
+                                <th class="col-rs">Documentos</th>
                                 <th>Alumno</th>
                                 <th>Acciones</th>
                             </tr>
@@ -61,8 +68,11 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="d-flex align-items-center">
-                        <span class="me-2">Registros por página:</span>
-                        <select id="limitePage" class="form-select form-select-sm" title="Limitar pagina"
+                        <span class="me-2 d-none d-sm-inline">Registros por página:</span>
+                        <select id="limitePage" class="form-select form-select-sm"
+                            title="Registros por página"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
                             style="width: auto;">
                             <option value="5" selected>5</option>
                             <option value="10">10</option>
@@ -71,10 +81,16 @@
                     </div>
                     <div class="btn-group">
                         <button id="prevPage" class="btn btn-secondary" disabled title="Anterior grupo de registros">
-                            <i class="fas fa-chevron-left"></i> Anterior
+                            <i class="fas fa-chevron-left"></i>
+                            <span class="d-none d-sm-inline">
+                                Anterior
+                            </span> 
                         </button>
                         <button id="nextPage" class="btn btn-secondary" title="Siguiente grupo de registros">
-                            Siguiente <i class="fas fa-chevron-right"></i>
+                            <span class="d-none d-sm-inline">
+                                Siguiente
+                            </span>
+                            <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
                 </div>

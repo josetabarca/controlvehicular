@@ -84,7 +84,7 @@ async function searchVehicle(placa) {
                     ${createDocumentLink(data.documentos?.seguro, 'fa-shield-alt', 'Seguro')}
                     ${createDocumentLink(data.documentos?.responsiva, 'fa-file-signature', 'Responsiva')}
                 </td>
-                <td>
+                <td class="text-center">
                     <button class="btn btn-info btn-sm" 
                             onclick="toggleStudentInfo('${doc.id}')"
                             data-bs-toggle="tooltip"
@@ -97,20 +97,20 @@ async function searchVehicle(placa) {
                 <td colspan="7">
                     <div class="student-info">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-3 col-md-3">
                                 <p><strong><i class="fas fa-user"></i> Nombre:</strong><br>
                                 ${studentInfo ? `${studentInfo.nombre} ${studentInfo.apellido}` : 'N/A'}</p>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-2 col-md-3">
                                 <p><strong><i class="fas fa-graduation-cap"></i> Grado y Grupo:</strong><br>
                                 ${studentInfo ? `${studentInfo.grado} "${studentInfo.grupo}"` : 'N/A'}</p>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-3 col-md-3">
                                 <p><strong><i class="fas fa-phone"></i> Teléfono:</strong><br>
                                 ${studentInfo ? studentInfo.telefono : 'N/A'}</p>
                             </div>
-                            <div class="col-md-3">
-                                <p><strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                            <div class="col-3 col-md-3">
+                                <p style="word-break: break-all;"><strong><i class="fas fa-envelope"></i> Email:</strong><br>
                                 ${studentInfo ? studentInfo.correo : 'N/A'}</p>
                             </div>
                         </div>

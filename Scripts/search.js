@@ -118,7 +118,7 @@ async function loadRecords(direction = 'next', reset = false) {
         await Promise.all(querySnapshot.docs.map(async (doc) => {
             const data = doc.data(); // Datos del vehículo
             const rowId = doc.id; // ID del documento
-            console.log(data);
+    
             // Obtener información del estudiante asociado
             const studentInfo = await getStudentInfo(data.uid);
             //  Crear fila de vehículo y fila oculta de información del estudiante
@@ -136,7 +136,7 @@ async function loadRecords(direction = 'next', reset = false) {
             ${createDocumentLink(data.documentos?.seguro, 'fa-shield-alt', 'Seguro')}
             ${createDocumentLink(data.documentos?.responsiva, 'fa-file-signature', 'Responsiva')}
         </td>
-        <td>
+        <td class="text-center">
             <button class="btn btn-info btn-sm" 
                     onclick="toggleStudentInfo('${rowId}')"
                     data-bs-toggle="tooltip"
@@ -145,28 +145,36 @@ async function loadRecords(direction = 'next', reset = false) {
             </button>
         </td> 
         <td>
-            <button class='btn btn-warning btn-sm me-1' id="${editarBtnId}">Editar</button>
-            <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}", "${data.uid}")'>Eliminar</button>
+         <div class="d-flex justify-content-center align-items-center">
+                <button class='btn btn-warning btn-sm me-1' id="${editarBtnId}">
+                    <i class="fas fa-edit d-md-none d-inline"></i>
+                    <span class="d-none d-md-inline"> Editar</span>
+                </button>
+                <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}", "${data.uid}")'>
+                    <i class="fas fa-trash-alt d-md-none d-inline"></i>
+                    <span class="d-none d-md-inline"> Eliminar</span>
+                </button>
+            </div>
         </td>
     </tr>
                         <tr class="info-row" id="info-${rowId}">
                             <td colspan="7">
                                 <div class="student-info">
                                     <div class="row">
-                                        <div class="col-md-3">
+                                        <div class="col-3 col-md-3">
                                             <p><strong><i class="fas fa-user"></i> Nombre:</strong><br>
                                             ${studentInfo ? `${studentInfo.nombre} ${studentInfo.apellido}` : 'N/A'}</p>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-2 col-md-3">
                                             <p><strong><i class="fas fa-graduation-cap"></i> Grado y Grupo:</strong><br>
                                             ${studentInfo ? `${studentInfo.grado} "${studentInfo.grupo}"` : 'N/A'}</p>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-3 col-md-3">
                                             <p><strong><i class="fas fa-phone"></i> Teléfono:</strong><br>
                                             ${studentInfo ? studentInfo.telefono : 'N/A'}</p>
                                         </div>
-                                        <div class="col-md-3">
-                                            <p><strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                                        <div class="col-3 col-md-3">
+                                            <p style="word-break: break-all;"><strong><i class="fas fa-envelope"></i> Email:</strong><br>
                                             ${studentInfo ? studentInfo.correo : 'N/A'}</p>
                                         </div>
                                     </div>
@@ -261,7 +269,7 @@ async function searchVehicles(placas) {
                         ${createDocumentLink(data.documentos?.seguro, 'fa-shield-alt', 'Seguro')}
                         ${createDocumentLink(data.documentos?.responsiva, 'fa-file-signature', 'Responsiva')}
                     </td>
-                    <td>
+                    <td class="text-center">
                         <button class="btn btn-info btn-sm" 
                                 onclick="toggleStudentInfo('${rowId}')"
                                 data-bs-toggle="tooltip"
@@ -270,28 +278,36 @@ async function searchVehicles(placas) {
                         </button>
                     </td>
                     <td>
-                        <button class='btn btn-warning btn-sm me-1' id="${editarBtnId}">Editar</button>
-                        <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}", "${data.uid}")'>Eliminar</button>
+                        <div class="d-flex justify-content-center align-items-center">
+                          <button class='btn btn-warning btn-sm me-1' id="${editarBtnId}">
+                            <i class="fas fa-edit d-md-none d-inline"></i>
+                            <span class="d-none d-md-inline"> Editar</span>
+                          </button>
+                          <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}", "${data.uid}")'>
+                            <i class="fas fa-trash-alt d-md-none d-inline"></i>
+                            <span class="d-none d-md-inline"> Eliminar</span>
+                          </button>
+                        </div>
                     </td>
                 </tr>
                 <tr class="info-row" id="info-${rowId}">
                     <td colspan="8">
                         <div class="student-info">
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-3 col-md-3">
                                     <p><strong><i class="fas fa-user"></i> Nombre:</strong><br>
                                     ${studentInfo ? `${studentInfo.nombre} ${studentInfo.apellido}` : 'N/A'}</p>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-2 col-md-3">
                                     <p><strong><i class="fas fa-graduation-cap"></i> Grado y Grupo:</strong><br>
                                     ${studentInfo ? `${studentInfo.grado} "${studentInfo.grupo}"` : 'N/A'}</p>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-3 col-md-3">
                                     <p><strong><i class="fas fa-phone"></i> Teléfono:</strong><br>
                                     ${studentInfo ? studentInfo.telefono : 'N/A'}</p>
                                 </div>
-                                <div class="col-md-3">
-                                    <p><strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                                <div class="col-3 col-md-3">
+                                    <p style="word-break: break-all;"><strong><i class="fas fa-envelope"></i> Email:</strong><br>
                                     ${studentInfo ? studentInfo.correo : 'N/A'}</p>
                                 </div>
                             </div>
