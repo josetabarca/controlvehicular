@@ -34,13 +34,13 @@
                 <!-- Busqueda y nuevo registro -->
                 <div class="d-flex justify-content-between align-items-center w-100 mb-3">
                 <div class="d-flex justify-content-between">
-                    <input type="text" id="searchInput" placeholder="Buscar vehículo..." class="form-control d-inline-block" style="min-width: 120px;">
+                    <input type="text" id="searchInput" placeholder="Buscar vehículo..." class="form-control d-inline-block" data-bs-toggle="tooltip" title="Buscar vehiculo por placa" style="min-width: 120px;">
                     <button id="searchBtn" class="btn btn-primary ms-2 d-flex align-items-center" title="Buscar por placa">
                         <i class="fas fa-search me-md-2 d-md-none d-inline"></i>
-                        <span class="d-none d-md-inline"> Buscar</span>
+                        <span class="d-none d-md-inline" data-bs-toggle="tooltip" title="Iniciar busqueda"> Buscar</span>
                     </button>
                 </div>
-                 <button class="btn btn-success" title="Agregar un nuevo registro" onclick="abrirModal('crear')">
+                 <button class="btn btn-success" data-bs-toggle="tooltip" title="Abrir formulario de nuevo registro" onclick="abrirModal('crear')">
                     <i class="fas fa-plus-circle d-md-none d-inline"></i>
                     <span class="d-none d-md-inline"> Nuevo Registro</span>
                 </button>
@@ -272,6 +272,22 @@
                 <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
                 <button class="btn btn-danger" id="confirmDelete" type="button">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de estado general -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title feedback-modal-title" id="feedbackModalLabel">Aviso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <i class="feedback-modal-icon fas fa-info-circle text-primary fa-3x mb-3"></i>
+                    <p class="feedback-modal-message mb-0"></p>
                 </div>
             </div>
         </div>

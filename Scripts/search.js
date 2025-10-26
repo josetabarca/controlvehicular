@@ -1,4 +1,5 @@
 import { db } from "../Scripts/firebase.js";
+import { showFeedbackModal } from "./feedbackModal.js";
 import { collection, query, orderBy, limit, getDocs, startAfter, endBefore, doc, getDoc, writeBatch, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Variables globales para paginación
@@ -103,7 +104,7 @@ async function loadRecords(direction = 'next', reset = false) {
             }
 
             // Si no hay resultados en dirección 'next', mostramos mensaje
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay registros disponibles</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No hay registros disponibles</td></tr>';
             // Deshabilitar botones
             nextBtn.disabled = true;
             prevBtn.disabled = true;
@@ -148,11 +149,11 @@ async function loadRecords(direction = 'next', reset = false) {
          <div class="d-flex justify-content-center align-items-center">
                 <button class='btn btn-warning btn-sm me-1' id="${editarBtnId}">
                     <i class="fas fa-edit d-md-none d-inline"></i>
-                    <span class="d-none d-md-inline"> Editar</span>
+                    <span class="d-none d-md-inline" data-bs-toggle="tooltip" title="Editar registro"> Editar</span>
                 </button>
                 <button class='btn btn-danger btn-sm' onclick='confirmDelete("${rowId}", "${data.uid}")'>
                     <i class="fas fa-trash-alt d-md-none d-inline"></i>
-                    <span class="d-none d-md-inline"> Eliminar</span>
+                    <span class="d-none d-md-inline" data-bs-toggle="tooltip" title="Eliminar registro"> Eliminar</span>
                 </button>
             </div>
         </td>
@@ -211,15 +212,14 @@ async function loadRecords(direction = 'next', reset = false) {
         prevBtn.disabled = prevCheck.empty;
 
     } catch (error) {
-        console.error("Error al cargar registros:", error);
         tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center text-danger">
-                            <i class="fas fa-exclamation-circle"></i> 
-                            Error al cargar los registros: ${error.message}
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td colspan="8" class="text-center text-danger">
+                        <i class="fas fa-exclamation-circle"></i> 
+                        Error al cargar los registros: ${error.message}
+                    </td>
+                </tr>
+            `;
     }
 }
 
@@ -238,13 +238,17 @@ async function searchVehicles(placas) {
         const q = query(vehiculosRef, where("placa", "in", placasArray));
         const querySnapshot = await getDocs(q);
         // Manejar caso sin resultados
+        const placa = searchInput.value.trim();
         if (querySnapshot.empty) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center">
-                        <i class="fas fa-search"></i> No se encontraron vehículos con las placas especificadas
-                    </td>
-                </tr>`;
+                <td colspan="8" class="text-center">
+                    <div class="alert alert-warning mb-0" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                            No se encontró ningún vehículo con la placa ${placa}
+                    </div>
+                </td>
+            </tr>`;
             return;
         }
         // Renderizar resultados de búsqueda
@@ -328,7 +332,6 @@ async function searchVehicles(placas) {
         tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
 
     } catch (error) { // Manejar errores
-        console.error("Error al buscar vehículos:", error);
         tbody.innerHTML = `
             <tr>
                 <td colspan="8" class="text-center text-danger">
@@ -336,6 +339,11 @@ async function searchVehicles(placas) {
                     Error al buscar vehículos: ${error.message}
                 </td>
             </tr>`;
+        showFeedbackModal({
+            title: "Error en la búsqueda",
+            message: "Ocurrió un problema al buscar los vehículos.",
+            type: "error",
+        });
     }
 }
 
@@ -405,10 +413,20 @@ window.confirmDelete = function(rowId, userId) {
       
       const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
       modal.hide();
-      loadRecords('next', true);
-      alert('Registro y datos relacionados eliminados correctamente.'); 
+            loadRecords('next', true);
+            showFeedbackModal({
+                title: 'Registro eliminado',
+                message: 'El vehículo y los datos asociados se eliminaron correctamente.',
+                type: 'success',
+                autoClose: true,
+            });
     } catch (error) {
       console.error('Error al eliminar el registro:', error);
+            showFeedbackModal({
+                title: 'Error al eliminar',
+                message: 'No fue posible eliminar el registro. Inténtalo de nuevo.',
+                type: 'error',
+            });
     }
   };
   new bootstrap.Modal(document.getElementById('deleteModal')).show();
@@ -423,25 +441,23 @@ document.getElementById('searchBtn').addEventListener('click', () => {
     const searchInput = document.getElementById('searchInput');
     const placas = searchInput.value.trim();
     if (!placas) {
-        loadRecords('next', true);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center">
+                    <div class="alert alert-warning mb-0" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Por favor ingrese una placa
+                    </div>
+                </td>
+            </tr>`;
         return;
     }
     searchVehicles(placas);
 });
 
 // Búsqueda al presionar Enter en el input
-document.getElementById('searchInput').addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') { // Si se presionó Enter
-        const placas = e.target.value.trim(); // Obtener valor del input
-        if (!placas) { // Si está vacío, mostrar todos los registros
-            loadRecords('next', true);
-            return;
-        }
-        // Buscar vehículos por placas 
-        searchVehicles(placas);
-    } else if (e.target.value.trim() === '') {
-        loadRecords('next', true); // Si está vacío, mostrar todos los registros
+searchInput.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+        searchBtn.click();
     }
 });
-
-

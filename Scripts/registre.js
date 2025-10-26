@@ -14,6 +14,7 @@ import {
 } from "./cloudinaryConfig.js";
 import { db } from "./firebase.js";
 import { loadRecords } from "./search.js";
+import { showFeedbackModal } from "./feedbackModal.js";
 
 const form = document.getElementById("registre-form");
 const modalEl = document.getElementById("vehiculoModal");
@@ -241,7 +242,12 @@ form.addEventListener("submit", async (e) => {
         { merge: true }
       );
 
-      alert("Alumno y vehículo registrados correctamente.");
+      showFeedbackModal({
+        title: "Registro exitoso",
+        message: "Alumno y vehículo registrados correctamente.",
+        type: "success",
+        autoClose: true,
+      });
       form.reset();
       modal.hide();
       loadRecords('next', true);
@@ -304,7 +310,12 @@ form.addEventListener("submit", async (e) => {
         );
       }
 
-      alert("Registro actualizado correctamente");
+      showFeedbackModal({
+        title: "Actualización completada",
+        message: "El registro se actualizó correctamente.",
+        type: "success",
+        autoClose: true,
+      });
       modal.hide();
       loadRecords('next', true);
     }

@@ -1,9 +1,11 @@
 import { auth, db } from "./firebase.js"; // Configuracion de firebase 
+import { showFeedbackModal } from "./feedbackModal.js";
 import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Iniciar sesion
 const loginForm = document.getElementById("login-form");
+let isLoggingOut = false;
 if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -123,13 +125,33 @@ if (loginForm) {
 // Cerrar sesión
 const opcLogut = document.getElementById("logoutBtn");
 if (opcLogut) {
-    opcLogut.addEventListener("click", (e) => {
+    opcLogut.addEventListener("click", async (e) => {
         e.preventDefault();
-        signOut(auth)
-            .then(() => {
-                window.location.href = "../index.html";
-            })
-            .catch(() => mostrarError("Error al cerrar sesión"));
+        isLoggingOut = true;
+        try {
+            await signOut(auth);
+            const redirectPath = window.location.pathname.includes('/HTML/') ? '../index.html' : 'index.html';
+            const modalShown = showFeedbackModal({
+                title: "Sesión cerrada",
+                message: "Sesión cerrada correctamente.",
+                type: "success",
+                redirectTo: redirectPath,
+                redirectDelay: 1500,
+            });
+
+            if (!modalShown) {
+                setTimeout(() => {
+                    window.location.href = redirectPath;
+                }, 1500);
+            }
+
+            setTimeout(() => {
+                isLoggingOut = false;
+            }, 2000);
+        } catch (error) {
+            isLoggingOut = false;
+            mostrarError("Error al cerrar sesión");
+        }
     });
 }
 
@@ -145,6 +167,9 @@ if (paginaActual !== "index.html" && paginaActual !== "") {
     onAuthStateChanged(auth, async (user) => {
         // Si no hay sesión activa, redirigir al login
         if (!user) {
+            if (isLoggingOut) { // Evitar redirección doble al cerrar sesión
+                return;
+            }
             window.location.href = "../index.html";
             return;
         }
