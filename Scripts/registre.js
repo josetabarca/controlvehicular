@@ -15,6 +15,7 @@ import {
 import { db } from "./firebase.js";
 import { loadRecords } from "./search.js";
 import { showFeedbackModal } from "./feedbackModal.js";
+import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm";
 
 const form = document.getElementById("registre-form");
 const modalEl = document.getElementById("vehiculoModal");
@@ -132,6 +133,19 @@ async function subirArchivo(file, carpetaUsuario, tipoArchivo) {
   };
 }
 
+//Generar QR code
+async function generarQRySubir(placa, uid) {
+  //Generar QR con la placa
+  const qrDataUrl = await QRCode.toDataURL(placa,{width: 300, margin: 2});
+  const blob = await (await fetch(qrDataUrl)).blob();
+  const file = new File([blob], "qrcode.png", { type: "image/png" });
+
+  //Subir QR a Cloudinary
+  const resultado = await subirArchivo(file, uid, "qrcode");
+  return resultado.url;
+}
+
+
 //Formulario
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -235,10 +249,20 @@ form.addEventListener("submit", async (e) => {
         }
       }
 
+      //Generar y subir QR
+      const qrUrl = await generarQRySubir(data.placa.toUpperCase(), uid);
+
       //Actualizar el documento
       await setDoc(
         doc(db, "vehiculos", data.placa.toUpperCase()),
         { documentos: urls },
+        { merge: true }
+      );
+
+      //Agregar URL del QR
+      await setDoc(
+        doc(db, "usuarios", uid),
+        { qrUrl },
         { merge: true }
       );
 

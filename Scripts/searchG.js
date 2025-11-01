@@ -83,6 +83,7 @@ async function searchVehicle(placa) {
                     ${createDocumentLink(data.documentos?.tarjeta, 'fa-file-alt', 'Tarjeta de Circulación')}
                     ${createDocumentLink(data.documentos?.seguro, 'fa-shield-alt', 'Seguro')}
                     ${createDocumentLink(data.documentos?.responsiva, 'fa-file-signature', 'Responsiva')}
+                    ${createDocumentLink(studentInfo.qrUrl, 'fa-qrcode', 'Código QR')}
                 </td>
                 <td class="text-center">
                     <button class="btn btn-info btn-sm" 
