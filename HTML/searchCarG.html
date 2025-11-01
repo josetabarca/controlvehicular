@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="../Styles/main.css">
     <link rel="stylesheet" href="../Styles/searchCar.css">
     <link rel="icon" href="../Media/Favicon_SV.png" type="image/x-icon">
+    <script src="../Scripts/plugins/qrCode.min.js"></script>
 </head>
 
 <body class="bg-light">
@@ -31,12 +32,21 @@
         <div class="container mt-4">
             <div class="table-container">
                 <h2 class="mb-4 text-center">Registros de Vehículos</h2>
-                <!-- Busqueda y nuevo registro -->
-                <div class="d-flex justify-content-between mb-3">
-                    <input type="text" id="searchInput" placeholder="Buscar vehículo..." class="form-control d-inline-block" title="Buscar por placa" style="min-width: 120px; width: 300px;">
-                    <button id="searchBtn" class="btn btn-primary ms-2 d-flex align-items-center" title="Iniciar busqueda">
-                        <i class="fas fa-search me-md-2 d-md-none d-inline"></i>
-                        <span class="d-none d-md-inline"> Buscar</span>
+                <!-- Busqueda de registro -->
+                <div class="d-flex justify-content-between align-items-center w-100 mb-3">
+                    <div class="d-flex justify-content-between">
+                        <input type="text" id="searchInput" placeholder="Buscar vehículo..."
+                            class="form-control d-inline-block search-input" title="Buscar por placa">
+                        <button id="searchBtn" class="btn btn-primary ms-2 d-flex align-items-center"
+                            title="Iniciar busqueda">
+                            <i class="fas fa-search me-md-2 d-md-none d-inline"></i>
+                            <span class="d-none d-md-inline"> Buscar</span>
+                        </button>
+                    </div>
+
+                    <button id="scannerBtn" class="btn btn-primary ms-2 d-flex align-items-center" title="Abrir escaner">
+                        <i class="fas fa-qrcode me-2 me-md-2 d-md-none d-inline"></i>
+                        <span class="d-none d-md-inline"> Escanear</span>
                     </button>
                 </div>
 
@@ -83,6 +93,21 @@
         </div>
     </div>
 
+    <!-- Modal para la vista del Scanner -->
+    <div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scannerModalLabel">Escaneo de codigo QR</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeEscannerBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <canvas hidden="" id="qr-canvas" class="img-fluid"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Sesión Cerrada -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -99,9 +124,12 @@
         </div>
     </div>
 
+    <audio id="audioScaner" src="../Media/sonido.mp3"></audio>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../Scripts/auth.js"></script>
     <script type="module" src="../Scripts/searchG.js"></script>
+    <script type="module" src="../Scripts/qrScanner.js"></script>
 </body>
 
 </html>

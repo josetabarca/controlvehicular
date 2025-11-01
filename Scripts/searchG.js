@@ -137,6 +137,8 @@ async function searchVehicle(placa) {
             </tr>`;
     }
 }
+// Exportar la función de búsqueda
+export { searchVehicle };
 
 // Event listeners
 // Mostrar documento en modal
